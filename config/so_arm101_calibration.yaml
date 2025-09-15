@@ -1,0 +1,38 @@
+# SO ARM101 Servo Calibration Configuration
+# This file contains essential calibrated servo parameters from LeRobot framework
+#
+# Parameter descriptions:
+# - min_ticks: Minimum allowed servo position in ticks (safety limit)
+# - max_ticks: Maximum allowed servo position in ticks (safety limit)
+# - center_ticks: Center position calculated as midpoint between min and max
+
+calibration:
+  shoulder_pan:
+    min_ticks: 770
+    max_ticks: 3401
+    center_ticks: 2085
+
+  shoulder_lift:
+    min_ticks: 811
+    max_ticks: 3206
+    center_ticks: 2008
+
+  elbow_flex:
+    min_ticks: 954
+    max_ticks: 3146
+    center_ticks: 2150
+
+  wrist_flex:
+    min_ticks: 847
+    max_ticks: 3177
+    center_ticks: 2012
+
+  wrist_roll:
+    min_ticks: 145
+    max_ticks: 3805
+    center_ticks: 1975
+
+  gripper:
+    min_ticks: 1479
+    max_ticks: 2994
+    center_ticks: 1600

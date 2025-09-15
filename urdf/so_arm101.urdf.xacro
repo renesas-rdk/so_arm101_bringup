@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot name="so_arm101" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Load arguments -->
+  <xacro:arg name="serial_port" default="/dev/ttyACM0"/>
+  <xacro:arg name="serial_baudrate" default="1000000"/>
+  <xacro:arg name="use_mock_hardware" default="false"/>
+  <xacro:arg name="enable_torque" default="true"/>
+  <xacro:arg name="calibration_file" default=""/>
+  <xacro:arg name="prefix" default=""/>
+
+  <!-- Include the arm description (includes integrated gripper) -->
+  <xacro:include filename="$(find so_arm101_description)/urdf/so_arm101_macro.xacro"/>
+
+  <!-- Include ros2_control configuration -->
+  <xacro:include filename="$(find so_arm101_ros2_control)/urdf/so_arm101_macro.ros2_control.xacro"/>
+
+  <!-- World link (for fixed mounting) -->
+  <link name="world"/>
+
+  <!-- Mount the arm to world (gripper is integrated) -->
+  <xacro:so_arm101 prefix="$(arg prefix)" parent="world">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </xacro:so_arm101>
+
+  <!-- Add ros2_control (includes all joints including gripper) -->
+  <xacro:so_arm101_ros2_control
+    name="so_arm101"
+    serial_port="$(arg serial_port)"
+    serial_baudrate="$(arg serial_baudrate)"
+    use_mock_hardware="$(arg use_mock_hardware)"
+    enable_torque="$(arg enable_torque)"
+    calibration_file="$(arg calibration_file)"
+    prefix="$(arg prefix)"/>
+
+</robot>
