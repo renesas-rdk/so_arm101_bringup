@@ -134,6 +134,8 @@ def launch_setup(context, *args, **kwargs) -> List[Node]:
             parameters=[
                 robot_description,
                 controller_config,
+                cartesian_motion_config,
+                gripper_config,
             ],
             remappings=[
                 ('/controller_manager/robot_description', '/robot_description'),
@@ -164,7 +166,6 @@ def launch_setup(context, *args, **kwargs) -> List[Node]:
             arguments=[
                 'so_arm101_cartesian_motion_controller',
                 '--controller-manager', '/controller_manager',
-                '--param-file', cartesian_motion_config,
             ],
         ),
         # Foxglove bridge for web-based visualization
@@ -180,7 +181,6 @@ def launch_setup(context, *args, **kwargs) -> List[Node]:
             arguments=[
                 'so_arm101_gripper_position_controller',
                 '--controller-manager', '/controller_manager',
-                '--param-file', gripper_config,
             ],
         )
     ]
