@@ -133,6 +133,20 @@ ros2 topic pub --once /so_arm101_cartesian_motion_controller/target_frame geomet
 ros2 topic pub --once /so_arm101_gripper_position_controller/commands std_msgs/msg/Float64MultiArray "{data: [0.5]}"
 ```
 
+**Arm Administrative Control (GPIO):**
+```bash
+# Enable arm torque (activate control)
+ros2 topic pub --once /so_arm101_gpio_controller/commands control_msgs/msg/DynamicInterfaceGroupValues "{
+  interface_groups: ['arm_admin'], interface_values: [{interface_names: ['enable_torque'], values: [1.0]}]}"
+
+# Disable arm torque (safe mode - free-moving)
+ros2 topic pub --once /so_arm101_gpio_controller/commands control_msgs/msg/DynamicInterfaceGroupValues "{
+  interface_groups: ['arm_admin'], interface_values: [{interface_names: ['enable_torque'], values: [0.0]}]}"
+
+# Monitor arm administrative state
+ros2 topic echo /so_arm101_gpio_controller/gpio_states
+```
+
 ## Hardware Configuration
 The hardware interface uses the following parameters:
 - `serial_port`: Device path for serial communication (e.g., /dev/ttyACM0)

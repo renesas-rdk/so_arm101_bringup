@@ -24,11 +24,12 @@ This launch file starts:
 - robot_state_publisher: Publishes TF transforms from URDF
 - joint_state_broadcaster: Publishes joint states from hardware
 - joint_position_controller: Provides direct position command control
-- gripper_controller: (Optional) Provides gripper action interface when include_gripper=true
+- gripper_controller: Provides gripper position control
+- gpio_controller: Provides arm administrative control (torque enable/disable)
 - foxglove_bridge: WebSocket bridge for Foxglove Studio visualization
 
 Usage:
-  # For physical robot with serial interface (with gripper):
+  # For physical robot with serial interface:
   ros2 launch so_arm101_bringup so_arm101_joint_position_control.launch.py
   ros2 launch so_arm101_bringup so_arm101_joint_position_control.launch.py serial_port:=/dev/ttyUSB1
 
@@ -42,8 +43,18 @@ Test joint position commands in another terminal with:
   ros2 topic pub --once /so_arm101_joint_position_controller/commands std_msgs/msg/Float64MultiArray "{data: [0.785, 0.0, 0.0, 0.0, 0.0]}"
 
 Test gripper commands:
-  # Use position command interface:
   ros2 topic pub --once /so_arm101_gripper_position_controller/commands std_msgs/msg/Float64MultiArray "{data: [0.5]}"
+
+Test arm administrative control:
+  # Enable arm torque (activate control)
+  ros2 topic pub --once /so_arm101_gpio_controller/commands
+    control_msgs/msg/DynamicInterfaceGroupValues
+    "{interface_groups: ['arm_admin'], interface_values: [{interface_names: ['enable_torque'], values: [1.0]}]}"
+
+  # Disable arm torque (safe mode - free-moving)
+  ros2 topic pub --once /so_arm101_gpio_controller/commands
+    control_msgs/msg/DynamicInterfaceGroupValues
+    "{interface_groups: ['arm_admin'], interface_values: [{interface_names: ['enable_torque'], values: [0.0]}]}"
 
 Or you can publish from foxglove studio's built-in publisher panel.
 
@@ -110,6 +121,10 @@ def launch_setup(context, *args, **kwargs) -> List[Node]:
         pkg_share, 'config', 'so_arm101_gripper_position_controller.yaml'
     )
 
+    gpio_config = os.path.join(
+        pkg_share, 'config', 'so_arm101_gpio_controller.yaml'
+    )
+
     # Foxglove bridge launch file
     foxglove_bridge_launch = os.path.join(
         get_package_share_directory('foxglove_bridge'),
@@ -130,6 +145,7 @@ def launch_setup(context, *args, **kwargs) -> List[Node]:
                 controller_config,
                 joint_position_config,
                 gripper_config,
+                gpio_config,
             ],
             remappings=[
                 ('/controller_manager/robot_description', '/robot_description'),
@@ -174,6 +190,17 @@ def launch_setup(context, *args, **kwargs) -> List[Node]:
             output='screen',
             arguments=[
                 'so_arm101_gripper_position_controller',
+                '--controller-manager', '/controller_manager',
+            ],
+        ),
+        # GPIO controller for arm administrative control
+        Node(
+            package='controller_manager',
+            executable='spawner',
+            name='gpio_controller_spawner',
+            output='screen',
+            arguments=[
+                'so_arm101_gpio_controller',
                 '--controller-manager', '/controller_manager',
             ],
         )
