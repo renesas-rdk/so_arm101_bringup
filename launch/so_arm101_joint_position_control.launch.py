@@ -43,6 +43,13 @@ Test joint position commands in another terminal with:
   ros2 topic pub --once /so_arm101_joint_position_controller/commands std_msgs/msg/Float64MultiArray "{data: [0.785, 0.0, 0.0, 0.0, 0.0]}"
 
 Test gripper commands:
+  # Use standard gripper action interface (position = normalized opening 0-1):
+  ros2 action send_goal /gripper_cmd control_msgs/action/ParallelGripperCommand "{command: {position: [0.5], effort: [10.0]}}"
+
+  # Or use simple topic interface:
+  ros2 topic pub /gripper_command control_msgs/msg/GripperCommand "{position: 0.5, max_effort: 10.0}"
+
+  # Direct controller access (legacy):
   ros2 topic pub --once /so_arm101_gripper_position_controller/commands std_msgs/msg/Float64MultiArray "{data: [0.5]}"
 
 Test arm administrative control:
@@ -203,6 +210,19 @@ def launch_setup(context, *args, **kwargs) -> List[Node]:
                 'so_arm101_gpio_controller',
                 '--controller-manager', '/controller_manager',
             ],
+        ),
+        # Gripper action adapter for standard gripper interfaces
+        Node(
+            package='so_arm101_utils',
+            executable='gripper_action_adapter',
+            name='gripper_action_adapter',
+            output='screen',
+            parameters=[{
+                'action_server_name': 'gripper_cmd',
+                'gripper_command_topic': 'gripper_command',
+                'position_controller_topic': '/so_arm101_gripper_position_controller/commands',
+                'max_gripper_width': 1.0,
+            }],
         )
     ]
 

@@ -26,6 +26,9 @@
   <!-- Hardware interface -->
   <exec_depend>so_arm101_ros2_control</exec_depend>
 
+  <!-- Utils package dependency -->
+  <exec_depend>so_arm101_utils</exec_depend>
+
   <!-- Runtime message dependencies -->
   <exec_depend>trajectory_msgs</exec_depend>
   <exec_depend>control_msgs</exec_depend>
